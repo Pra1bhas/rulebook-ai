@@ -21,7 +21,9 @@ class Reranker:
     def rerank(self, query: str, results: list[SearchResult], k: int) -> list[SearchResult]:
         if not results:
             return []
-        scores = list(self.model.rerank(query, [r.chunk.text for r in results]))
+        # Same input the embeddings see: heading + text ("6. Consent ..." gives the topic)
+        docs = [f"{r.chunk.section}\n{r.chunk.text}" for r in results]
+        scores = list(self.model.rerank(query, docs))
         paired = sorted(zip(results, scores), key=lambda x: x[1], reverse=True)[:k]
         return [SearchResult(chunk=r.chunk, score=float(s), source="rerank") for r, s in paired]
 

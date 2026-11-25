@@ -1,70 +1,62 @@
-# 🚀 Deploy (free) — Hugging Face Spaces
+# 🚀 Deploy for ₹0: Render (free, no credit card)
 
-Hugging Face Spaces free CPU machine lo 16 GB RAM untundi. Mana embedding + reranker models ki adi saripothundi.
-Mana `Dockerfile` ne vaaduthundi, so code maarchalsina avasaram ledu.
+## Why Render, and why "lite" mode? (interview story ⭐)
+- **Hugging Face Docker Spaces stopped being free in July 2026** (402: "requires a PRO subscription").
+  Google Cloud Run / Oracle need a card. Render's free plan needs **no card**: 512 MB RAM, 0.1 CPU.
+- I **measured** the full app: ~530 MB with no reranker and ~960 MB with even a small reranker, because
+  the local models + `onnxruntime` need that much RAM *while running* (model file size ≠ memory used).
+- So production runs in **lite mode** (`Dockerfile.render`):
+  - embeddings from the **Gemini API** (`EMBEDDER=gemini`) → no local model, no onnxruntime
+  - **no reranker** (`RERANKER=none`); the full pipeline still runs locally (`Dockerfile`, `uvicorn`)
+  - the public library's vectors are **cached in `data/embeddings/*.npz`** (committed), so the
+    index is built during `docker build` with **0 API calls and no key**, and startup is fast
 
-## Step 0: PDFs ready cheyyi
-`data/raw/` lo public PDFs pettu (ex: DPDP Act 2023, RBI KYC Master Direction).
-App start ayyinappudu index empty ga unte, ee PDFs ni automatic ga index chesthundi.
+Kitchen example 🍳: the full restaurant has a big oven (the reranker). The free food truck has no
+room for it, so we serve a simpler menu, and measured how much taste we lose (`scripts/evaluate.py`).
 
-## Step 1: Space create cheyyi (5 min)
-1. huggingface.co lo account create cheyyi (free)
-2. Top right lo **New → Space**
-3. Name: `rulebook-ai` · SDK: **Docker** · Template: **Blank** · Hardware: **CPU basic (free)** · Public
-4. **Create Space**
+### Measured: what does lite mode cost? (20 questions, 5 documents, Nov 2026)
+| Config | Hit@5 | MRR |
+|---|---|---|
+| Local bge-small + bge-reranker-base | 75% | 0.45 |
+| ...same, reranker also sees the section heading (fixed) | 80% | 0.55 |
+| Local bge-small, **no reranker** | 90% | 0.59 |
+| Gemini embeddings + reranker (with heading) | 80% | 0.51 |
+| **Lite = production: Gemini embeddings, no reranker** | **95%** | **0.70** |
 
-## Step 2: API key ni secret ga pettu (important!)
-Space lo **Settings → Variables and secrets → New secret**:
-- Name: `GEMINI_API_KEY` · Value: nee key
+Surprise: on this eval set **lite mode is the best**, so the free deploy loses nothing. The general-purpose
+cross-encoder (trained on web search, MS MARCO) re-orders legal sections worse than the embeddings do.
+Honest caveats: only 20 questions, and a hit counts only the expected section in the expected PDF
+(an equally good answer from the DPDP *Rules* counts as a miss). Next step: a bigger eval set.
 
-Key ni code lo kaani, `.env` file lo kaani upload cheyyaku. Secret ga pettina value container ki environment variable ga vasthundi, kani bayata evariki kanipinchadu.
+## Step 1: Render account (2 min)
+1. https://render.com → **Get Started** → **Sign in with GitHub** (no card needed)
+2. Allow Render to see the `rulebook-ai` repository
 
-(Optional) **New variable**: `GEMINI_MODEL` = AI Studio lo ippudu free ga unna model name.
+## Step 2: Create the service from the Blueprint (`render.yaml`)
+1. Render dashboard → **New +** → **Blueprint**
+2. Pick the `rulebook-ai` repo → Render reads `render.yaml` (free plan, `Dockerfile.render`)
+3. It asks for the secret values: paste `GEMINI_API_KEY`, `GROQ_API_KEY` (backup LLM),
+   and optionally `ADMIN_KEY` (any long random password). They are stored as secrets, never in git.
+4. **Apply**. The first build takes ~5 min. The link looks like `https://rulebook-ai-xxxx.onrender.com`
 
-## Step 3: Files upload cheyyi
-Easiest way (git avasaram ledu): Space page lo **Files → Add file → Upload files**. Ivi drag & drop cheyyi:
-```
-Dockerfile   README.md   requirements.txt   .dockerignore
-app/         scripts/    data/
-```
-❌ Ivi upload cheyyaku: `.env`, `storage/`, `models/`, `.venv/`
+## Step 3: Check it
+- `https://<your-app>.onrender.com/health` → `{"status":"ok","chunks":494,...}`
+- Ask "Can I withdraw my consent?" and try 🛠️ Solve my problem.
 
-`README.md` top lo unna `sdk: docker` / `app_port: 7860` lines ni Hugging Face chaduvuthundi. Vaatini delete cheyyaku.
+## Free plan limits (be honest in interviews)
+| Limit | What it means | What we did |
+|---|---|---|
+| Sleeps after 15 min idle | First visit after a break waits ~1 min | Index pre-built in the image, so wake-up is just loading |
+| 512 MB RAM | Big local models don't fit | Lite mode (API embeddings, no reranker) |
+| Disk is temporary | Uploads vanish on restart/redeploy | That's fine: uploads auto-delete after 24 h anyway |
+| Gemini free tier: 100 embeddings/min | Heavy traffic can hit limits | Query-embedding cache + answer cache + per-user rate limit |
 
-## Step 4: Build chudu
-**Logs** tab open cheyyi. First build ki ~5-10 min padutundi (libraries + models download).
-"Application startup complete" kanipisthe ready. Nee app link idi:
-```
-https://huggingface.co/spaces/<your-username>/rulebook-ai
-```
+## Adding a new public PDF
+1. Put it in `data/raw/`
+2. Run the app **locally once with** `EMBEDDER=gemini` (in `.env`), so `data/embeddings/*.npz` gets its vectors
+   (the free tier allows 100 per minute, so a big PDF can take a few minutes; it waits automatically)
+3. Commit + push → Render redeploys automatically. If you forget step 2, the build fails with a clear message.
 
-## Problems?
-| Problem | Fix |
-|---|---|
-| `GEMINI_API_KEY is missing` | Step 2 secret name exact ga check cheyyi, tarvatha Space ni **Restart** cheyyi |
-| `Gemini error 404` model not found | `GEMINI_MODEL` variable lo AI Studio lo unna current model name pettu |
-| `Rate limit hit` | Free tier limit. 1 min wait cheyyi, leda `GROQ_API_KEY` secret + `LLM_PROVIDER=groq` variable pettu |
-| Uploaded PDF restart tarvatha kanipinchadu | Free Spaces lo storage temporary. Permanent ga undalante PDF ni `data/raw/` lo pettu |
-| Space "sleeping" | 48 hrs evaru open cheyyakapothe free Spaces sleep avthayi. Link open chesthe malli start avthundi (~1 min) |
-
-## Code update chesthe
-Changed files ni malli upload cheyyi. Space automatic ga rebuild avthundi.
-
----
-
-## GitHub ki kooda push cheyyi (resume kosam must)
-```bash
-git init
-```
-```bash
-git add .
-```
-```bash
-git status
-```
-(`.env` list lo ledu ani confirm cheyyi!)
-```bash
-git commit -m "RuleBook AI: hybrid RAG over Indian regulations"
-```
-GitHub lo `rulebook-ai` ane empty repo create chesi, akkada chupinche `git remote add origin ...` and `git push -u origin main` commands run cheyyi.
-README lo top lo live demo link pettu.
+## Full version (laptop / paid hosting)
+`docker compose up --build` or `uvicorn app.api.main:app --port 7860` runs the full pipeline:
+local bge-small embeddings + bge-reranker-base cross-encoder.

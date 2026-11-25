@@ -1,0 +1,28 @@
+# ---- RuleBook AI, LITE container for free hosting (Render: 512 MB RAM, 0.1 CPU) ----
+# Differences from the full Dockerfile:
+#   * embeddings from the Gemini API (EMBEDDER=gemini) instead of a local model
+#   * no reranker (RERANKER=none): the cross-encoder alone needs ~400+ MB RAM
+#   * no fastembed/onnxruntime installed at all
+# The public library's vectors come from data/embeddings/*.npz (committed), so the
+# index is built HERE at build time without any API key, and startup is fast.
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    EMBEDDER=gemini \
+    RERANKER=none
+
+WORKDIR /app
+COPY requirements-lite.txt .
+RUN pip install --no-cache-dir -r requirements-lite.txt
+
+COPY app app
+COPY scripts scripts
+COPY data data
+
+# Build the index from the cached vectors (0 API calls). Fails loudly if a PDF in
+# data/raw has no cached vectors: run the app locally once with EMBEDDER=gemini.
+RUN python -m scripts.ingest_folder data/raw && chmod -R 777 storage data
+
+# Render sets PORT (usually 10000)
+CMD ["sh", "-c", "uvicorn app.api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

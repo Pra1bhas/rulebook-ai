@@ -37,7 +37,9 @@ class VectorStore:
             self.client = QdrantClient(url=settings.qdrant_url)
         else:
             self.client = QdrantClient(path=settings.qdrant_path)
-        self.name = settings.collection
+        # One collection per vector size: 384-number (local) and 768-number (Gemini)
+        # vectors can't live in the same collection.
+        self.name = f"{settings.collection}-{dim}"
         if not self.client.collection_exists(self.name):
             self.client.create_collection(
                 self.name, vectors_config=VectorParams(size=dim, distance=Distance.COSINE)

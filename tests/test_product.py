@@ -27,11 +27,11 @@ def test_uploads_are_private_per_user(sample_pdf):
     rb.chunks = []  # start from an empty library for this test
     rb.ingest_file(sample_pdf, owner=ALICE)
     q = "personal data breach inform the Board"
-    assert rb.search(q, owner=ALICE), "Alice must find her own document"
-    assert rb.search(q, owner=BOB) == [], "Bob must NOT see Alice's document"
-    assert rb.search(q, owner="") == [], "anonymous users see only the public library"
-    assert [d["mine"] for d in rb.documents(ALICE)] == [True]
-    assert rb.documents(BOB) == []
+    assert any(r.chunk.owner == ALICE for r in rb.search(q, owner=ALICE)), "Alice finds her doc"
+    assert all(r.chunk.owner != ALICE for r in rb.search(q, owner=BOB)), "Bob must NOT see it"
+    assert all(r.chunk.owner == "" for r in rb.search(q, owner="")), "anonymous: public only"
+    assert [d["doc_name"] for d in rb.documents(ALICE) if d["mine"]] == ["sample_act.pdf"]
+    assert not [d for d in rb.documents(BOB) if d["mine"]]
 
 
 def test_same_pdf_two_users_are_separate_copies(sample_pdf):

@@ -33,13 +33,15 @@ def section_matches(section: str, text: str, expected: str) -> bool:
 def main(use_llm: bool) -> None:
     data = json.loads(EVAL_FILE.read_text(encoding="utf-8"))
     rb = RuleBook()
+    rb.sync_folder("data/raw")  # index any library PDF that isn't indexed yet
     hits, rr_total, rows = 0, 0.0, []
 
     for item in data["answerable"]:
         results = rb.search(item["question"])
         rank = next(
             (i for i, r in enumerate(results, 1)
-             if section_matches(r.chunk.section, r.chunk.text, item["expected_section"])),
+             if item.get("expected_doc", "") in r.chunk.doc_name
+             and section_matches(r.chunk.section, r.chunk.text, item["expected_section"])),
             None,
         )
         hits += rank is not None

@@ -1,0 +1,12 @@
+# Lite build for free 512 MB hosting (Render): embeddings come from the Gemini API,
+# no local models. No fastembed -> no onnxruntime (~400 MB less RAM).
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.34
+pydantic-settings==2.16.3
+pymupdf==2.1
+rank-bm25==0.2.2
+qdrant-client==1.20.0
+google-genai==3.6.1
+httpx==0.28.1
+numpy==2.5.5

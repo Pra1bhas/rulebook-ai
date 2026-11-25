@@ -57,6 +57,18 @@ class RuleBook:
         self.lock = threading.Lock()  # FastAPI runs requests in threads: one writer at a time
         self.chunks = self._load_chunks()
         self.bm25 = BM25Index(self.chunks)
+        self._ensure_vectors()
+
+    def _ensure_vectors(self) -> None:
+        """Self-heal: if Qdrant doesn't hold exactly one vector per chunk (new embedder,
+        fresh in-memory store, crashed ingest), rebuild the vectors from chunks.jsonl."""
+        if not self.chunks or self.vectors.count() == len(self.chunks):
+            return
+        log.info("Rebuilding %d vectors (embedder or store changed)", len(self.chunks))
+        for owner in sorted({c.owner for c in self.chunks}):
+            mine = [c for c in self.chunks if c.owner == owner]
+            texts = [f"{c.section}\n{c.text}" for c in mine]
+            self.vectors.upsert(mine, self.embedder.embed_documents(texts, cache=not owner))
 
     # ------------------------------------------------------------ ingest
     def ingest_file(self, path: str | Path, owner: str = "") -> dict:
@@ -72,7 +84,8 @@ class RuleBook:
         now = time.time()
         chunks = [c.model_copy(update={"owner": owner, "created_at": now}) for c in chunk_pages(pages)]
         doc_id = chunks[0].doc_id
-        vectors = self.embedder.embed_documents([f"{c.section}\n{c.text}" for c in chunks])
+        texts = [f"{c.section}\n{c.text}" for c in chunks]
+        vectors = self.embedder.embed_documents(texts, cache=not owner)  # never cache private docs
 
         with self.lock:
             # Remove the old version of this document (idempotent re-ingest).
@@ -95,7 +108,9 @@ class RuleBook:
     def sync_folder(self, folder: str | Path) -> list[dict]:
         """Index every public PDF in the folder that isn't indexed yet (new default docs)."""
         known = {c.doc_id for c in self.chunks if not c.owner}
-        files = sorted(Path(folder).glob("*.pdf")) + sorted(Path(folder).glob("*.PDF"))
+        # Suffix check instead of glob("*.pdf") + glob("*.PDF"): on Windows those two
+        # globs match the SAME files (case-insensitive), so every PDF was indexed twice.
+        files = sorted(f for f in Path(folder).iterdir() if f.suffix.lower() == ".pdf")
         return [self.ingest_file(f) for f in files if make_doc_id(f) not in known]
 
     ingest_folder = sync_folder  # old name, still used by scripts/ingest_folder.py

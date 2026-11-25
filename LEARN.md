@@ -176,9 +176,9 @@ Act as a senior AI engineer interviewing me about this project. Ask 10 questions
 > **RuleBook AI: RAG assistant for Indian regulations (RBI, DPDP Act)** | Python, FastAPI, Qdrant, Gemini, Docker · [Live demo] · [GitHub]
 > - Built hybrid retrieval (BM25 + bge embeddings, fused with Reciprocal Rank Fusion) and cross-encoder reranking; section-aware chunking preserves document, page and section for every citation.
 > - Reduced hallucinations with source-only prompting, structured JSON outputs and citation validation; the system answers "not found" for out-of-scope questions (X/Y in tests).
-> - Wrote a retrieval evaluation script: reranking improved hit-rate@5 from X% to Y% and MRR from A to B on a 14-question test set.
+> - Built a retrieval eval (20 questions, 5 regulations): measured that a general cross-encoder reranker *hurt* legal retrieval (hit@5 90%→75%), and shipped Gemini embeddings without it: 95% hit@5, MRR 0.70.
 > - Supports Telugu-English questions via LLM query rewriting; provider-agnostic LLM layer with retry/backoff (Gemini, Groq).
-> - Containerised with Docker (app + Qdrant via docker-compose), 13 pytest tests, deployed on Hugging Face Spaces.
+> - Fit a 512 MB free tier (measured 960 MB → 400 MB) with API embeddings + a committed vector cache; Docker, 39 pytest tests, GitHub Actions CI, deployed on Render.
 
 ⚠️ **Numbers nuvvu run chesi chusinave pettu.** Interview lo "how did you measure?" ani adigithe `scripts/evaluate.py` chupinchu.
 

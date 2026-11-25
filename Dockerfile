@@ -22,8 +22,10 @@ RUN if [ "$PRELOAD_MODELS" = "1" ]; then \
       python -c "from app.retrieval.embedder import FastEmbedder; from app.retrieval.reranker import Reranker; FastEmbedder(); Reranker()"; \
     fi
 
-# 4) Documents to index on first start
+# 4) Public library: index it NOW (build time), so a cold start doesn't spend
+#    minutes embedding hundreds of chunks. New PDFs are still picked up at startup.
 COPY data data
+RUN if [ "$PRELOAD_MODELS" = "1" ]; then python -m scripts.ingest_folder data/raw; fi
 
 # Hosting platforms often run as a non-root user -> make folders writable
 RUN mkdir -p storage models && chmod -R 777 storage data models

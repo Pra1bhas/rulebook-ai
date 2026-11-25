@@ -79,7 +79,7 @@ Open http://localhost:8000 · Qdrant dashboard: http://localhost:6333/dashboard
 
 ## Tests & evaluation
 ```bash
-pytest -q                          # 33 tests, no internet or API key needed (fake embedder + fake LLM)
+pytest -q                          # 39 tests, no internet or API key needed (fake embedder + fake LLM)
 python -m scripts.evaluate         # retrieval hit-rate@5 and MRR on data/eval/questions.json
 python -m scripts.evaluate --llm   # also checks the "not found" behaviour
 ```
@@ -97,8 +97,12 @@ python -m scripts.evaluate --llm   # also checks the "not found" behaviour
 | POST | `/admin/ingest` | add a public document (needs `X-Admin-Key`) |
 | GET | `/health` | status + chunk count |
 
-## Deploy
-Free on Hugging Face Spaces (Docker). See [DEPLOY.md](DEPLOY.md).
+## Deploy (₹0)
+Runs on **Render's free plan** (no card) in a measured **lite mode**: free hosting has 512 MB RAM,
+the full local pipeline needs ~530-960 MB, so production uses Gemini API embeddings (library vectors
+cached in `data/embeddings/`, index built at `docker build` time with 0 API calls) and skips the
+cross-encoder. Lite uses ~400 MB. The full pipeline runs locally / with `Dockerfile`.
+Setup and the quality trade-off: [DEPLOY.md](DEPLOY.md).
 
 ## Project structure
 ```
@@ -109,7 +113,7 @@ app/
   pipeline.py          ⭐ the whole flow: ingest + ask + solve, private uploads
   ingest/parser.py     PDF -> clean pages
   ingest/chunker.py    pages -> section-aware chunks
-  retrieval/           bm25_index, embedder, vector_store, hybrid (RRF), reranker
+  retrieval/           bm25_index, embedder (local or Gemini API + vector cache), vector_store, hybrid (RRF), reranker
   generation/answer.py prompt, query rewrite, citation validation + dedupe
   generation/solver.py problem -> sub-queries -> cited action plan + draft letter
   api/main.py          FastAPI endpoints, sessions, upload limits

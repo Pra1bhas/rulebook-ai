@@ -20,7 +20,8 @@ See the docstring at the top of `app/pipeline.py` for the full flow.
 - `app/config.py`: all settings (env / .env)
 - `app/llm.py`: the only place that calls an LLM (gemini | groq | fake)
 - `app/ingest/`: parser (PyMuPDF), section-aware chunker
-- `app/retrieval/`: BM25, fastembed embeddings, Qdrant (server if QDRANT_URL else embedded), RRF, cross-encoder reranker
+- `app/retrieval/`: BM25, embeddings (fastembed local, or `EMBEDDER=gemini` API with vector cache in `data/embeddings/`), Qdrant (server if QDRANT_URL else embedded; one collection per vector size), RRF, cross-encoder reranker
+- Deploy: Render free (512 MB) via `render.yaml` + `Dockerfile.render` (lite: gemini embeddings, no reranker). New public PDF -> run locally once with EMBEDDER=gemini to refresh the cache, then commit.
 - `app/generation/answer.py`: query rewrite, prompt, citation validation + dedupe
 - `app/generation/solver.py`: "Solve my problem" mode: problem → 1-3 queries → cited action plan + draft letter
 - `app/api/main.py`: FastAPI + serves `app/static/index.html`

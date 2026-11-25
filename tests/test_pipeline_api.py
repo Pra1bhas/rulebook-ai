@@ -53,3 +53,19 @@ def test_api_end_to_end(sample_pdf):
         bad = client.post("/upload", headers=me, files=[("files", ("x.txt", b"hi", "text/plain"))])
         assert bad.json()[0]["ok"] is False
         assert "RuleBook AI" in client.get("/").text
+
+
+def test_sync_folder_indexes_each_pdf_once(sample_pdf, tmp_path):
+    # Bug: glob("*.pdf") + glob("*.PDF") matched the same files twice on Windows.
+    import shutil
+
+    folder = tmp_path / "lib"
+    folder.mkdir()
+    shutil.copy(sample_pdf, folder / "a.pdf")
+    shutil.copy(sample_pdf, folder / "B.PDF")
+    (folder / "notes.txt").write_text("not a pdf")
+    rb = RuleBook(vector_location=":memory:")
+    rb.chunks = []
+    names = sorted(r["doc"] for r in rb.sync_folder(folder))
+    assert names == ["B.PDF", "a.pdf"]
+    assert rb.sync_folder(folder) == [], "second sync: nothing new"

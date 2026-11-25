@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     llm_max_retries: int = 4
 
     # --- Embeddings + reranker (run locally, free) ---
-    embedder: str = "fastembed"  # "fastembed" | "fake" (fake = tests only)
+    embedder: str = "fastembed"  # "fastembed" (local) | "gemini" (API, low RAM) | "fake" (tests)
     embedding_model: str = "BAAI/bge-small-en-v1.5"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dim: int = 768
+    embedding_cache_dir: str = "data/embeddings"  # Gemini vectors of the public library
     reranker: str = "fastembed"  # "fastembed" | "none"
     reranker_model: str = "BAAI/bge-reranker-base"
     model_cache_dir: str = "models"

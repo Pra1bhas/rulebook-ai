@@ -1,0 +1,17 @@
+# Render Blueprint: free web service, ₹0, no card.
+# Render -> New -> Blueprint -> pick this GitHub repo. It asks for the secret values below.
+services:
+  - type: web
+    name: rulebook-ai
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    healthCheckPath: /health
+    autoDeploy: true          # every push to main redeploys
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false           # secret: you type it in the Render dashboard
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ADMIN_KEY
+        sync: false

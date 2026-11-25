@@ -1,20 +1,106 @@
 {
-  "_note": "Eval set for the DPDP Act 2023 PDF. expected_section = the section number where the answer lives. Add your own questions for RBI/SEBI docs the same way.",
+  "_note": "Eval set over the public library. expected_doc = part of the PDF file name, expected_section = the section/FAQ number where the answer lives. A hit needs BOTH to match (many Acts have a 'section 6').",
   "answerable": [
-    {"question": "Can I withdraw my consent after giving it?", "expected_section": "6"},
-    {"question": "What makes consent valid under the DPDP Act?", "expected_section": "6"},
-    {"question": "What must a company do if there is a personal data breach?", "expected_section": "8"},
-    {"question": "When must a Data Fiduciary erase personal data?", "expected_section": "8"},
-    {"question": "What is needed before processing a child's personal data?", "expected_section": "9"},
-    {"question": "Can companies do targeted advertising to children?", "expected_section": "9"},
-    {"question": "What is a Significant Data Fiduciary?", "expected_section": "10"},
-    {"question": "Can I get a summary of my personal data that a company processes?", "expected_section": "11"},
-    {"question": "How can I correct or erase my personal data?", "expected_section": "12"},
-    {"question": "Where do I complain if a company misuses my data?", "expected_section": "13"},
-    {"question": "Can I nominate someone to use my data rights after my death?", "expected_section": "14"},
-    {"question": "What are the duties of a Data Principal?", "expected_section": "15"},
-    {"question": "Can personal data be transferred outside India?", "expected_section": "16"},
-    {"question": "What powers does the Data Protection Board have?", "expected_section": "27"}
+    {
+      "question": "Can I withdraw my consent after giving it?",
+      "expected_section": "6",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What makes consent valid under the DPDP Act?",
+      "expected_section": "6",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What must a company do if there is a personal data breach?",
+      "expected_section": "8",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "When must a Data Fiduciary erase personal data?",
+      "expected_section": "8",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What is needed before processing a child's personal data?",
+      "expected_section": "9",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "Can companies do targeted advertising to children?",
+      "expected_section": "9",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What is a Significant Data Fiduciary?",
+      "expected_section": "10",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "Can I get a summary of my personal data that a company processes?",
+      "expected_section": "11",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "How can I correct or erase my personal data?",
+      "expected_section": "12",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "Where do I complain if a company misuses my data?",
+      "expected_section": "13",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "Can I nominate someone to use my data rights after my death?",
+      "expected_section": "14",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What are the duties of a Data Principal?",
+      "expected_section": "15",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "Can personal data be transferred outside India?",
+      "expected_section": "16",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "What powers does the Data Protection Board have?",
+      "expected_section": "27",
+      "expected_doc": "DPDP_Act_2023"
+    },
+    {
+      "question": "How do I request information under the RTI Act?",
+      "expected_section": "6",
+      "expected_doc": "RTI_Act"
+    },
+    {
+      "question": "How many days does the public information officer have to reply?",
+      "expected_section": "7",
+      "expected_doc": "RTI_Act"
+    },
+    {
+      "question": "What can I do if I get no reply to my RTI application?",
+      "expected_section": "19",
+      "expected_doc": "RTI_Act"
+    },
+    {
+      "question": "Where do I file a complaint about defective goods?",
+      "expected_section": "35",
+      "expected_doc": "Consumer_Protection"
+    },
+    {
+      "question": "How do I file a complaint with the RBI Ombudsman?",
+      "expected_section": "9",
+      "expected_doc": "RBI_Ombudsman"
+    },
+    {
+      "question": "When can I approach the RBI Ombudsman about my bank?",
+      "expected_section": "17",
+      "expected_doc": "RBI_Ombudsman"
+    }
   ],
   "not_in_docs": [
     "What is the current repo rate set by RBI?",
