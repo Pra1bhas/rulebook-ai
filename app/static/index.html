@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RuleBook AI: Indian rules, simply explained</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2430; --muted: #667085;
+    --line: #e4e7ec; --accent: #2457d6; --accent-soft: #eaf0fe; --warn: #b54708; --warn-soft: #fef6ee;
+    --ok: #067647; --ok-soft: #ecfdf3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b2029; --text: #e6e9ef; --muted: #98a2b3;
+      --line: #2b323e; --accent: #7aa2ff; --accent-soft: #1f2a44; --warn: #f5a462; --warn-soft: #3a2a1c;
+      --ok: #75e0a7; --ok-soft: #16281f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 780px; margin: 0 auto; padding: 24px 16px 170px; }
+  header h1 { margin: 0; font-size: 1.6rem; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  .note { font-size: .8rem; color: var(--muted); margin-top: 6px; }
+  .tabs { display: flex; gap: 6px; margin: 18px 0 12px; }
+  .tab { flex: 1; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
+         color: var(--text); font-weight: 600; cursor: pointer; }
+  .tab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  details.box { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+                padding: 10px 14px; margin-bottom: 10px; font-size: .9rem; }
+  details.box summary { cursor: pointer; font-weight: 600; }
+  .doc { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .doc:first-of-type { border-top: 0; }
+  .doc small { color: var(--muted); }
+  .x { background: none; color: var(--warn); padding: 0 6px; font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--text);
+          border-radius: 999px; padding: 6px 12px; font-size: .86rem; cursor: pointer; font-weight: 400; }
+  .chip:hover { border-color: var(--accent); }
+  .msg { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+         padding: 14px 16px; margin-bottom: 12px; }
+  .msg.user { background: var(--accent-soft); border-color: transparent; font-weight: 500; white-space: pre-wrap; }
+  .msg.notfound { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+  .answer { white-space: pre-wrap; }
+  h3 { margin: 14px 0 6px; font-size: 1rem; }
+  h3:first-child { margin-top: 0; }
+  ol, ul { margin: 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  sup a { color: var(--accent); text-decoration: none; font-size: .75rem; margin-left: 2px; }
+  .letter { white-space: pre-wrap; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px;
+            padding: 10px 12px; font: .88rem/1.5 ui-monospace, Consolas, monospace; }
+  .copy { margin-top: 6px; padding: 6px 12px; font-size: .82rem; }
+  .cites { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .cites summary { cursor: pointer; color: var(--accent); font-size: .9rem; }
+  .cite { font-size: .85rem; margin-top: 8px; }
+  .cite b { display: block; }
+  .cite b a { color: var(--accent); }
+  .cite span { color: var(--muted); }
+  .meta { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+  form { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg);
+         border-top: 1px solid var(--line); padding: 12px 16px; }
+  .row { max-width: 780px; margin: 0 auto; display: flex; gap: 8px; align-items: flex-end; }
+  textarea { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 10px; resize: none;
+             border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; }
+  button { padding: 12px 18px; border: 0; border-radius: 10px; background: var(--accent);
+           color: #fff; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .foot { max-width: 780px; margin: 6px auto 0; font-size: .72rem; color: var(--muted); text-align: center; }
+  .upl label { color: var(--accent); cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>📘 RuleBook AI</h1>
+    <p>Indian rules on banking, consumer rights, data privacy and RTI, in simple words, always with the official source.</p>
+  </header>
+
+  <div class="tabs">
+    <button type="button" class="tab on" id="tabAsk">❓ Ask a question</button>
+    <button type="button" class="tab" id="tabSolve">🛠️ Solve my problem</button>
+  </div>
+  <div class="note" id="modeNote"></div>
+
+  <details class="box" id="libBox">
+    <summary id="libTitle">📚 Official library</summary>
+    <div id="lib"></div>
+  </details>
+  <details class="box" id="myBox">
+    <summary id="myTitle">📁 My documents (private)</summary>
+    <div id="my"></div>
+    <div class="upl" style="margin-top:8px">
+      <label for="file">+ Upload PDFs</label> (rent agreement, loan papers, policy…; only you can see them; auto-deleted after 24 h)
+      <input type="file" id="file" accept=".pdf,application/pdf" multiple hidden>
+      <div id="upStatus" class="note"></div>
+    </div>
+  </details>
+
+  <div class="chips" id="chips"></div>
+  <div id="chat"></div>
+</main>
+
+<form id="form">
+  <div class="row">
+    <textarea id="q" rows="2" autocomplete="off"></textarea>
+    <button id="send">Ask</button>
+  </div>
+  <div class="foot">Guidance from official documents, not legal advice. Check the linked source, and talk to a lawyer for serious matters.</div>
+</form>
+
+<script>
+const EXAMPLES = {
+  ask: [
+    "Can I withdraw my consent?",
+    "RTI application ki enta fee kattali?",
+    "How do I complain to the RBI Ombudsman?",
+    "Pillala data process cheyyalante em kavali?",
+    "Can I file a consumer complaint online?",
+  ],
+  solve: [
+    "Someone did a UPI fraud and ₹20,000 was debited from my account yesterday. What should I do?",
+    "Online lo konna phone defective vachindi, seller refund ivvatledu. Em cheyyali?",
+    "My bank has not replied to my complaint for 45 days.",
+    "A company keeps sending me marketing messages even after I asked them to delete my data.",
+  ],
+};
+const NOTES = {
+  ask: "Ask anything about the documents below. English or Telugu-English both work.",
+  solve: "Describe your problem in your own words. You'll get your rights, the steps to take, where to complain, and a draft letter.",
+};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// A random id for this browser = "who am I" for private uploads. Not shared with anyone.
+let SID = localStorage.getItem("rb_sid");
+if (!SID) { SID = crypto.randomUUID(); localStorage.setItem("rb_sid", SID); }
+const H = { "X-Session-Id": SID };
+
+let mode = "ask";
+function setMode(m) {
+  mode = m;
+  $("tabAsk").classList.toggle("on", m === "ask");
+  $("tabSolve").classList.toggle("on", m === "solve");
+  $("send").textContent = m === "ask" ? "Ask" : "Solve";
+  $("q").placeholder = m === "ask"
+    ? "Ask in English or Telugu… e.g. Bank naa data share cheyyocha?"
+    : "Describe your problem… what happened, when, and what you already tried";
+  $("q").rows = m === "ask" ? 2 : 3;
+  $("modeNote").textContent = NOTES[m];
+  $("chips").innerHTML = "";
+  EXAMPLES[m].forEach((t) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = t;
+    b.onclick = () => { $("q").value = t; send(); };
+    $("chips").appendChild(b);
+  });
+}
+$("tabAsk").onclick = () => setMode("ask");
+$("tabSolve").onclick = () => setMode("solve");
+
+async function loadDocs() {
+  try {
+    const docs = await (await fetch("documents", { headers: H })).json();
+    const lib = docs.filter((d) => !d.mine), mine = docs.filter((d) => d.mine);
+    $("libTitle").textContent = `📚 Official library (${lib.length} documents)`;
+    $("lib").innerHTML = lib.map((d) =>
+      `<div class="doc"><span><a href="files/${encodeURIComponent(d.doc_name)}" target="_blank" rel="noopener">${esc(d.doc_name.replace(/_/g, " ").replace(/\.pdf$/i, ""))}</a></span><small>${d.pages} pages</small></div>`
+    ).join("") || "<small>No documents yet.</small>";
+    $("myTitle").textContent = `📁 My documents (private): ${mine.length}`;
+    $("my").innerHTML = mine.map((d) =>
+      `<div class="doc"><span>${esc(d.doc_name)} <small>· ${d.pages} pages · deleted in ${d.expires_in_hours} h</small></span>` +
+      `<button type="button" class="x" title="Delete" data-id="${esc(d.doc_id)}">✕</button></div>`
+    ).join("") || "<small>None yet. Upload your own PDFs and ask questions about them too.</small>";
+    $("my").querySelectorAll(".x").forEach((b) => b.onclick = async () => {
+      await fetch("documents/" + encodeURIComponent(b.dataset.id), { method: "DELETE", headers: H });
+      loadDocs();
+    });
+  } catch { /* server starting */ }
+}
+
+function add(html, cls) {
+  const div = document.createElement("div");
+  div.className = "msg " + (cls || "");
+  div.innerHTML = html;
+  $("chat").appendChild(div);
+  div.scrollIntoView({ behavior: "smooth", block: "end" });
+  return div;
+}
+
+function sourcesHtml(cites) {
+  if (!cites.length) return "";
+  const items = cites.map((c, i) => {
+    const title = `[${i + 1}] ${esc(c.doc_name)} · page ${c.page} · ${esc(c.section)}`;
+    const t = c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${title}</a>` : title;
+    return `<div class="cite"><b>${t}</b><span>${esc(c.snippet)}…</span></div>`;
+  }).join("");
+  return `<details class="cites"><summary>📎 Sources (${cites.length})</summary>${items}</details>`;
+}
+
+function refs(point, cites) {
+  return point.refs.map((n) => {
+    const c = cites[n - 1];
+    return c && c.url ? `<sup><a href="${esc(c.url)}" target="_blank" rel="noopener">[${n}]</a></sup>` : `<sup>[${n}]</sup>`;
+  }).join("");
+}
+
+function planHtml(p) {
+  const list = (title, pts, tag) => pts.length
+    ? `<h3>${title}</h3><${tag}>${pts.map((x) => `<li>${esc(x.text)}${refs(x, p.citations)}</li>`).join("")}</${tag}>` : "";
+  let h = p.summary ? `<h3>📝 Your situation</h3><div>${esc(p.summary)}</div>` : "";
+  h += list("✅ Your rights", p.rights, "ul");
+  h += list("👣 What to do now", p.steps, "ol");
+  h += list("📣 If it is not solved", p.escalation, "ol");
+  if (p.draft_letter) {
+    h += `<h3>✉️ Draft letter</h3><div class="letter">${esc(p.draft_letter)}</div>` +
+         `<button type="button" class="copy">Copy letter</button>`;
+  }
+  if (p.missing_info.length) {
+    h += `<h3>❓ Tell me more for better advice</h3><ul>${p.missing_info.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>`;
+  }
+  return h + sourcesHtml(p.citations) +
+    (p.search_queries.length ? `<div class="meta">Searched for: ${p.search_queries.map(esc).join(" · ")}</div>` : "");
+}
+
+const NOT_FOUND_PLAN = "I couldn't find rules for this problem in the documents. Try the ❓ Ask tab with a specific question, or upload the relevant document under 📁 My documents.";
+
+async function send() {
+  const text = $("q").value.trim();
+  if (text.length < (mode === "ask" ? 3 : 10)) return;
+  $("q").value = "";
+  $("send").disabled = true;
+  add(esc(text), "user");
+  const box = add(mode === "ask" ? "Searching the documents…" : "Reading the rules and making a plan… (10-20 seconds)");
+  try {
+    const r = await fetch(mode, {
+      method: "POST", headers: { ...H, "Content-Type": "application/json" },
+      body: JSON.stringify(mode === "ask" ? { question: text } : { problem: text }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Please write a bit more.");
+    if (mode === "solve") {
+      if (!data.found) { box.className = "msg notfound"; box.textContent = NOT_FOUND_PLAN; return; }
+      box.innerHTML = planHtml(data);
+      const btn = box.querySelector(".copy");
+      if (btn) btn.onclick = async () => {
+        await navigator.clipboard.writeText(data.draft_letter);
+        btn.textContent = "Copied ✓";
+      };
+      return;
+    }
+    if (!data.found) box.className = "msg notfound";
+    box.innerHTML = `<div class="answer">${esc(data.answer)}</div>` + sourcesHtml(data.citations) +
+      (data.search_query && data.search_query !== text ? `<div class="meta">Searched for: ${esc(data.search_query)}</div>` : "");
+  } catch (e) {
+    box.className = "msg notfound";
+    box.textContent = "Error: " + e.message;
+  } finally {
+    $("send").disabled = false;
+    box.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+}
+
+$("form").onsubmit = (e) => { e.preventDefault(); send(); };
+$("q").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }  // Shift+Enter = new line
+});
+
+$("file").onchange = async () => {
+  const files = [...$("file").files];
+  if (!files.length) return;
+  $("upStatus").textContent = `Indexing ${files.length} file(s)… (big PDFs take a minute)`;
+  const fd = new FormData();
+  files.forEach((f) => fd.append("files", f));
+  try {
+    const r = await fetch("upload", { method: "POST", headers: H, body: fd });
+    const d = await r.json();
+    $("upStatus").innerHTML = r.ok
+      ? d.map((x) => x.ok ? `✅ ${esc(x.doc)}: ${x.pages} pages` : `❌ ${esc(x.error)}`).join("<br>")
+      : "❌ " + esc(d.detail);
+  } catch (e) { $("upStatus").textContent = "❌ " + e.message; }
+  $("file").value = "";
+  $("myBox").open = true;
+  loadDocs();
+};
+
+setMode("ask");
+loadDocs();
+</script>
+</body>
+</html>
