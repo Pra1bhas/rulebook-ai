@@ -12,6 +12,9 @@ pinned: false
 
 [![tests](https://github.com/Pra1bhas/rulebook-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/Pra1bhas/rulebook-ai/actions/workflows/tests.yml)
 
+### 🔗 Live demo: **https://rulebook-ai-qpkc.onrender.com**
+*(free hosting: if nobody used it for 15 min, the first load takes ~1 min to wake up)*
+
 **A free assistant that helps ordinary people in India deal with everyday problems (bank complaints, defective products, data misuse, RTI) using official rules. Ask in English or Telugu-English. Every answer cites the exact document, page and section, and if the documents don't cover something it says "not found" instead of guessing.**
 
 ## What it does
