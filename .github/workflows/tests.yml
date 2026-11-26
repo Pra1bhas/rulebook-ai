@@ -13,3 +13,17 @@ jobs:
           cache: pip
       - run: pip install -r requirements-dev.txt
       - run: pytest -q
+
+  # Build the exact image Render builds, so a broken Dockerfile.render fails HERE,
+  # not on Render. (Our first Render deploy failed: numpy 2.5 needs Python 3.12.)
+  # No API key needed: the library vectors come from data/embeddings/*.npz.
+  render-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f Dockerfile.render -t rulebook-lite .
+      - name: start it and call /health
+        run: |
+          docker run -d -p 8080:8080 -e PORT=8080 --name app rulebook-lite
+          for i in $(seq 1 30); do curl -sf localhost:8080/health && exit 0; sleep 2; done
+          docker logs app; exit 1
